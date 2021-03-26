@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    /* CSS Styles for Webpage Formatting and Font Families */
+    @font-face {
+      font-family: 'JuliusSansOne';
+      src: url('./font/JuliusSansOne-Regular.ttf');
+    }
+
+    @font-face {
+      font-family: 'Jura';
+      src: url('./font/Jura-Light.ttf');
+    }
+
+    body {
+      font-family: Jura;
+      color: white;
+      margin: 0;
+      background: #323232;
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 10px;
+      text-align: center;
+      background: #242424;
+      color: orange;
+      font-size: 17px;
+      font-family: JuliusSansOne;
+    }
+
+    .container {
+      height: 100px;
+      position: relative;
+    }
+
+    .container-small {
+      height: 30px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+    }
+
+    .full-container {
+      height: 100%;
+      position: relative;
+    }
+
+    .center {
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      -ms-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+    }
+
+    .paragraph {
+      text-align: left;
+      color: #e3e3e3;
+      font-size: 20px;
+      margin-left: 20px;
+      font-family: Jura;
+    }
+
+    .button1 {
+      background-color: orange;
+      /* Green */
+      border-radius: 12px;
+      color: #323232;
+      padding: 16px 32px;
+      text-align: center;
+      font-family: Jura;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 26px;
+      margin: 20px 20px;
+      transition-duration: 0.4s;
+      cursor: pointer;
+      padding: 10px;
+    }
+
+    .button1 {
+      background-color: #323232;
+      color: white;
+      border: 2px solid orange;
+    }
+
+    .button1:hover {
+      background-color: orange;
+      color: white;
+    }
+
+    .button1:focus {
+      outline: none;
+      box-shadow: none;
+    }
+
+    ::-webkit-scrollbar {
+      width: 20px;
+    }
+
+    /* Track */
+    ::-webkit-scrollbar-track {
+      box-shadow: inset 0 0 5px #242424;
+      background: #242424;
+    }
+
+    ::-webkit-scrollbar-corner {
+      background: rgb(0, 0, 0);
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+      background: rgb(255, 165, 0);
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgb(255, 165, 0);
+    }
+
+    .disable-select {
+      user-select: none;
+      /* supported by Chrome and Opera */
+      -webkit-user-select: none;
+      /* Safari */
+      -khtml-user-select: none;
+      /* Konqueror HTML */
+      -moz-user-select: none;
+      /* Firefox */
+      -ms-user-select: none;
+      /* Internet Explorer/Edge */
+    }
+
+    input[type=text] {
+      width: 225px;
+      padding: 12px 20px;
+      margin: 8px 0;
+      box-sizing: border-box;
+      border: 2px solid orange;
+      border-radius: 12px;
+      font-family: Jura;
+      text-align: center;
+      font-size: 20px;
+      background-color: #323232;
+      color: white;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+    }
+  </style>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; connect-src 'self' wss://signalling.innov8rz.net:443/; script-src 'self' 'unsafe-inline'; script-src-elem 'self' 'unsafe-inline' https://webrtc.github.io/adapter/adapter-latest.js">
+  <meta http-equiv="X-Content-Security-Policy"
+    content="default-src 'self'; connect-src 'self' wss://signalling.innov8rz.net:443/; script-src 'self' 'unsafe-inline'; script-src-elem 'self' 'unsafe-inline' https://webrtc.github.io/adapter/adapter-latest.js">
+  <title>TeleComms</title>
+</head>
+
+<!-- The file below is received through the a website and is used for WebRTC Connections -->
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+
+<body class="disable-select" id="bodyContainer">
+  <div class="header" id="headerDiv">
+    <h1 class="disable-select">TeleComms</h1>
+    <p class="disable-select">By Mihir Chauhan</p>
+  </div>
+
+  <div class="container" id="inputUsernameContainer">
+    <div class="center">
+      <form onSubmit="return false;">
+        <input type="text" id="inputUsernameField" oninput="openRoomButton()" hidden>
+      </form>
+    </div>
+  </div>
+
+  <div class="container" id="openRoomButtonContainer" hidden>
+    <div class="center">
+      <button class="button1" id="openRoomButton" onclick="openRoom()">Open Room</button>
+    </div>
+  </div>
+
+  <script>
+    /* Copyright (c) 2021 Innov8rz FTC Team 11039, Mihir Chauhan
+     *
+     * Redistribution and use in source and binary forms, with or without modification,
+     * are permitted (subject to the limitations in the disclaimer below) provided that
+     * the following conditions are met:
+     *
+     * Redistributions of source code must retain the above copyright notice, this list
+     * of conditions and the following disclaimer.
+     *
+     * Redistributions in binary form must reproduce the above copyright notice, this
+     * list of conditions and the following disclaimer in the documentation and/or
+     * other materials provided with the distribution.
+     *
+     * Neither the name of Innov8rz nor the names of its contributors may be used to endorse or
+     * promote products derived from this software without specific prior written permission.
+     *
+     * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
+     * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+     * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+     * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+     * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+     * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+     * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+     * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+     * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+     * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+     * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     */
+
+    var roomName = window.shortName;
+    var localDisplayName = "";
+    document.getElementById("openRoomButtonContainer").hidden = true;
+
+    var inputUsernameField = document.getElementById("inputUsernameField");
+    inputUsernameField.value = ""
+    inputUsernameField.hidden = false;
+    inputUsernameField.placeholder = "Display Name";
+
+    function openRoomButton() {
+      document.addEventListener("keyup", function (event) {
+        // Number 13 is the "Enter" key on the keyboard
+        if (event.keyCode === 13 && !hasAlreadyOpenedRoom) {
+          // Cancel the default action, if needed
+          event.preventDefault();
+          // Trigger the button element with a click
+          document.getElementById("openRoomButton").click();
+          hasAlreadyOpenedRoom = true;
+        }
+      });
+      // Called when either Host types Robot IP or if Driver types Room Code
+      document.getElementById('openRoomButton').textContent = "Join Room"
+      document.getElementById('openRoomButtonContainer').hidden = false
+    }
+
+    function openRoom() {
+      window.fs.writeFile(window.dir + '/TeleComms/appData.txt', JSON.stringify({ "localDisplayName": inputUsernameField.value }), function (err) {
+        if (err) throw err;
+      });
+      window.location = "telecomm.html";
+    }
+  </script>
+  <script src="./renderer.js"></script>
+</body>
+
+</html>

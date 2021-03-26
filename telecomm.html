@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        /* CSS Styles for Webpage Formatting and Font Families */
+        @font-face {
+            font-family: 'JuliusSansOne';
+            src: url('./font/JuliusSansOne-Regular.ttf');
+        }
+
+        @font-face {
+            font-family: 'Jura';
+            src: url('./font/Jura-Light.ttf');
+        }
+
+        body {
+            font-family: Jura;
+            color: white;
+            margin: 0;
+            background: #323232;
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 10px;
+            text-align: center;
+            background: #242424;
+            color: orange;
+            font-size: 17px;
+            font-family: JuliusSansOne;
+        }
+
+        .container {
+            height: 100px;
+            position: relative;
+        }
+
+        .container-small {
+            height: 30px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+        }
+
+        .full-container {
+            height: 100%;
+            position: relative;
+        }
+
+        .center {
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+        }
+
+        .paragraph {
+            text-align: left;
+            color: #e3e3e3;
+            font-size: 20px;
+            margin-left: 20px;
+            font-family: Jura;
+        }
+
+        .button1 {
+            background-color: orange;
+            /* Green */
+            border-radius: 12px;
+            color: #323232;
+            padding: 16px 32px;
+            text-align: center;
+            font-family: Jura;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 26px;
+            margin: 20px 20px;
+            transition-duration: 0.4s;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .button1 {
+            background-color: #323232;
+            color: white;
+            border: 2px solid orange;
+        }
+
+        .button1:hover {
+            background-color: orange;
+            color: white;
+        }
+
+        .button1:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        ::-webkit-scrollbar {
+            width: 20px;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            box-shadow: inset 0 0 5px #242424;
+            background: #242424;
+        }
+
+        ::-webkit-scrollbar-corner {
+            background: rgb(0, 0, 0);
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            background: rgb(255, 165, 0);
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgb(255, 165, 0);
+        }
+
+        .disable-select {
+            user-select: none;
+            /* supported by Chrome and Opera */
+            -webkit-user-select: none;
+            /* Safari */
+            -khtml-user-select: none;
+            /* Konqueror HTML */
+            -moz-user-select: none;
+            /* Firefox */
+            -ms-user-select: none;
+            /* Internet Explorer/Edge */
+        }
+
+        input[type=text] {
+            width: 225px;
+            padding: 12px 20px;
+            margin: 8px 0;
+            box-sizing: border-box;
+            border: 2px solid orange;
+            border-radius: 12px;
+            font-family: Jura;
+            text-align: center;
+            font-size: 20px;
+            background-color: #323232;
+            color: white;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; connect-src 'self' wss://signalling.innov8rz.net:443/; script-src 'self' 'unsafe-inline'; script-src-elem 'self' 'unsafe-inline' https://webrtc.github.io/adapter/adapter-latest.js">
+    <meta http-equiv="X-Content-Security-Policy"
+        content="default-src 'self'; connect-src 'self' wss://signalling.innov8rz.net:443/; script-src 'self' 'unsafe-inline'; script-src-elem 'self' 'unsafe-inline' https://webrtc.github.io/adapter/adapter-latest.js">
+    <title>TeleComms</title>
+</head>
+
+<!-- The file below is received through the a website and is used for WebRTC Connections -->
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+
+<body class="disable-select" id="bodyContainer">
+
+    <div class="container-small" id="roomCode" hidden>
+        <text class="paragraph" id="roomCodeText" onclick="regenerateRoomName()">Room Code: ↺</text>
+    </div>
+
+    <div id="telecomms">
+        <link rel="stylesheet" href="style.css">
+        <div id="videos" class="videos">
+            <div id="localVideoContainer" class="videoContainer">
+                <video id="localVideo" autoplay muted></video>
+            </div>
+            <!-- Remote videos get appended here dynamically / programatically -->
+        </div>
+    </div>
+
+    <script>
+        /* Copyright (c) 2021 Innov8rz FTC Team 11039, Mihir Chauhan
+         *
+         * Redistribution and use in source and binary forms, with or without modification,
+         * are permitted (subject to the limitations in the disclaimer below) provided that
+         * the following conditions are met:
+         *
+         * Redistributions of source code must retain the above copyright notice, this list
+         * of conditions and the following disclaimer.
+         *
+         * Redistributions in binary form must reproduce the above copyright notice, this
+         * list of conditions and the following disclaimer in the documentation and/or
+         * other materials provided with the distribution.
+         *
+         * Neither the name of Innov8rz nor the names of its contributors may be used to endorse or
+         * promote products derived from this software without specific prior written permission.
+         *
+         * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
+         * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+         * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+         * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+         * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+         * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+         * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+         * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+         * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+         * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+         * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+         */
+
+        var roomName = "11039";
+        var localDisplayName = window.displayName;
+
+        window.fs.readFile(window.dir + '/TeleComms/appData.txt', function (err, data) {
+            var parsedData = JSON.parse(data);
+            localDisplayName = parsedData.localDisplayName;
+            document.getElementById('localVideoContainer').appendChild(makeLabel(parsedData.localDisplayName));
+            startTeleComms();
+        });
+
+
+        const WS_PORT = 443; //Port used for connection to the signalling websocket server
+        const WS_ADDR = 'signalling.innov8rz.net'; //Address to the signalling websocket server
+
+        var localUuid;
+        var localStream;
+        var serverConnection;
+        var peerConnections = {}; // Object format: key is uuid, values are peer connection object and user defined display name string
+
+        //Connections to Google's STUN servers which allows clients to find out their public address, the type of NAT they are behind and the Internet side port associated by the NAT with a particular local port
+        var peerConnectionConfig = {
+            'iceServers': [
+                { 'urls': 'stun:stun.stunprotocol.org:3942' },
+                { 'urls': 'stun:stun.l.google.com:12084' },
+            ]
+        };
+
+        // Generate Local UUID - check out function for more details
+        localUuid = createUUID();
+
+        var constraints = {
+            video: {
+                width: { max: 1920 },
+                height: { max: 1080 },
+                frameRate: { max: 60 },
+            },
+            audio: true,
+        };
+
+        function startTeleComms() {
+            // Set up local video stream
+            if (navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia(constraints)
+                    .then(stream => {
+                        localStream = stream;
+                        document.getElementById('localVideo').srcObject = stream;
+                    }).catch(errorHandler)
+
+                    // Set up websocket connection with the signalling server and message all existing clients (if any) in the room 
+                    .then(() => {
+                        serverConnection = new window.websocket('wss://' + WS_ADDR + ':' + WS_PORT, {
+                            rejectUnauthorized: false
+                        });
+                        //Set up callback functions of the server in the case of message recieved, etc.
+                        serverConnection.onmessage = gotMessageFromServer;
+                        serverConnection.onopen = event => {
+                            // The next line sends a special password to the Signalling Sever to verify that you are a TeleComms user not a bot
+                            serverConnection.send("4C4C4544-0032-3610-8044-B5C04F305932-" + localDisplayName);
+                            // Now, if we are authorized, we can send our display name and local UUID to everyone in the room
+                            serverConnection.send(JSON.stringify({ 'displayName': localDisplayName, 'uuid': localUuid, 'dest': 'all' }));
+                        }
+                    }).catch(errorHandler);
+
+            } else {
+                //Very unlikely case, but could happen that the API is not supported
+            }
+        }
+
+
+        async function gotMessageFromServer(message) {
+            document.getElementById('roomCodeText').innerText = "Room Code: " + roomName + "  | Status: Connected";
+            var signal = JSON.parse(message.data);
+            var peerUuid = signal.uuid;
+
+
+            // Ignore messages that are not for us or from ourselves
+            if (peerUuid == localUuid || (signal.dest != localUuid && signal.dest != 'all') || (!peerUuid.includes(roomName))) return;
+
+            if (signal.displayName && signal.dest == 'all') {
+                // set up peer connection object for a newcomer peer
+                setUpPeer(peerUuid, signal.displayName);
+                serverConnection.send(JSON.stringify({ 'displayName': localDisplayName, 'uuid': localUuid, 'dest': peerUuid }));
+            } else if (signal.displayName && signal.dest == localUuid) {
+                // initiate call if we are the newcomer peer
+                setUpPeer(peerUuid, signal.displayName, true);
+            } else if (signal.sdp) {
+                peerConnections[peerUuid].pc.setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function () {
+                    // Only create answers in response to offers
+                    if (signal.sdp.type == 'offer') {
+                        peerConnections[peerUuid].pc.createAnswer().then(description => createdDescription(description, peerUuid)).catch(errorHandler);
+                    }
+                }).catch(errorHandler);
+
+            } else if (signal.ice) {
+                peerConnections[peerUuid].pc.addIceCandidate(new RTCIceCandidate(signal.ice)).catch(errorHandler);
+            }
+        }
+
+        function setUpPeer(peerUuid, displayName, initCall = false) {
+            peerConnections[peerUuid] = { 'displayName': displayName, 'pc': new RTCPeerConnection(peerConnectionConfig) };
+            peerConnections[peerUuid].pc.onicecandidate = event => gotIceCandidate(event, peerUuid);
+            peerConnections[peerUuid].pc.ontrack = event => gotRemoteStream(event, peerUuid);
+            peerConnections[peerUuid].pc.oniceconnectionstatechange = event => checkPeerDisconnect(event, peerUuid);
+            peerConnections[peerUuid].pc.addStream(localStream);
+            if (initCall) {
+                peerConnections[peerUuid].pc.createOffer({ offerToReceiveVideo: true }).then(description => createdDescription(description, peerUuid)).catch(errorHandler);
+            }
+        }
+
+        function gotIceCandidate(event, peerUuid) {
+            //This just sends the ice candidate to the server when it creates a new one... nothing too special.
+            if (event.candidate != null) {
+                serverConnection.send(JSON.stringify({ 'ice': event.candidate, 'uuid': localUuid, 'dest': peerUuid }));
+            }
+        }
+
+        function createdDescription(description, peerUuid) {
+            //This sends the created description to the server
+            peerConnections[peerUuid].pc.setLocalDescription(description).then(function () {
+                serverConnection.send(JSON.stringify({ 'sdp': peerConnections[peerUuid].pc.localDescription, 'uuid': localUuid, 'dest': peerUuid }));
+            }).catch(errorHandler);
+        }
+
+        var previousPeerUUIDs = [];
+
+        function gotRemoteStream(event, peerUuid) {
+            //This is invoked from the callback on line 759 when a stream (or track) is received for a certain peer
+            for (i = 0; i < previousPeerUUIDs.length; i++) {
+                if (previousPeerUUIDs[i] == peerUuid) {
+                    return;
+                }
+            }
+            previousPeerUUIDs[previousPeerUUIDs.length] = peerUuid;
+
+
+            // Note that in the host view, you can see all of the active members of the room as a security feature to know if an unwanted peer has joined, 
+            // ALSO NOTE that the case of unwanted peers in your room is very unlikely with randomized 8 digit/letter codes.
+            var vidElement = document.createElement('video');
+            vidElement.setAttribute('autoplay', '');
+            vidElement.srcObject = event.streams[0];
+
+            var vidContainer = document.createElement('div');
+            vidContainer.setAttribute('id', 'remoteVideo_' + peerUuid);
+            vidContainer.setAttribute('class', 'videoContainer');
+            vidContainer.appendChild(vidElement);
+
+            vidContainer.appendChild(makeLabel(peerConnections[peerUuid].displayName));
+            document.getElementById('videos').appendChild(vidContainer);
+
+            updateLayout();
+        }
+
+        function checkPeerDisconnect(event, peerUuid) {
+            // This function checks for any connection disconect, failure, or if it has closed and removes the peer cleanly
+            // In the case of the host, the box for the peer that disconnected will disappear automatically within 5-7 seconds of departure
+            var state = peerConnections[peerUuid].pc.iceConnectionState;
+            if (state === "failed" || state === "closed" || state === "disconnected") {
+                delete peerConnections[peerUuid];
+                for (i = 0; i < previousPeerUUIDs.length; i++) {
+                    if (previousPeerUUIDs[i] == peerUuid) {
+                        delete peerUuid[i];
+                    }
+                }
+                // When a driver disconnects we want to make sure that we Emergency STOP the robot for safety
+                previousPeerUUIDs[previousPeerUUIDs.length] = peerUuid;
+                document.getElementById('videos').removeChild(document.getElementById('remoteVideo_' + peerUuid));
+                updateLayout();
+            } else {
+            }
+        }
+
+        function updateLayout() {
+            // update CSS grid based on number of diplayed videos
+            var rowHeight = '98vh';
+            var colWidth = '98vw';
+
+            var numVideos = Object.keys(peerConnections).length + 1;
+
+            if (numVideos > 1 && numVideos <= 4) { // 2x2 grid
+                rowHeight = '48vh';
+                colWidth = '48vw';
+            } else if (numVideos > 4) { // 3x3 grid
+                rowHeight = '32vh';
+                colWidth = '32vw';
+            }
+
+            document.documentElement.style.setProperty(`--rowHeight`, rowHeight);
+            document.documentElement.style.setProperty(`--colWidth`, colWidth);
+        }
+
+        function makeLabel(label) {
+            // Creates the label for the user's display name
+            var vidLabel = document.createElement('div');
+            vidLabel.appendChild(document.createTextNode(label));
+            vidLabel.setAttribute('class', 'videoLabel');
+            return vidLabel;
+        }
+
+        function errorHandler(error) {
+            // Error handler for basically any error that can be handled :)
+        }
+
+        // Taken from http://stackoverflow.com/a/105074/515584
+        // Strictly speaking, it's not a real UUID, but it gets the job done here
+        function createUUID() {
+            function s4() {
+                return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+            }
+            return 'host-' + roomName + '-' + s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+        }
+    </script>
+    <script src="./renderer.js"></script>
+</body>
+
+</html>
